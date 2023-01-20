@@ -1,0 +1,10 @@
+node_modules
+.idea
+.gitignore
+.npmignore
+build.ts
+build.js
+buildAPI.ts
+createClient.ts
+createHandler.ts
+tsconfig.json

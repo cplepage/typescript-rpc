@@ -1,5 +1,5 @@
 import type { IncomingMessage } from 'http';
-import apiBuilder from './buildAPI';
+import buildAPI from './buildAPI';
 
 function readBody(req: IncomingMessage) {
     return new Promise((resolve) => {
@@ -15,17 +15,25 @@ function readBody(req: IncomingMessage) {
     });
 }
 
-export default function main(apiDefinition) {
-    const api = apiBuilder(apiDefinition);
+export default function (apiDefinition) {
+    const api = buildAPI(apiDefinition);
 
-    const handler = async (req, res) => {
+    return async (req, res) => {
+        if(req.url === "/api"){
+            res.end(JSON.stringify(api));
+            return;
+        }
+
         const url = new URL('http://localhost' + req.url);
         const methodPath = url.pathname.slice(1).split('/');
 
         const method = methodPath.reduce((api, key) => api[key], apiDefinition);
+
+        if(!method) return;
+
         const argsName = methodPath.reduce((api, key) => api[key], api);
 
-        let args = [];
+        let args;
         if (req.method === 'POST' || req.method === 'PUT') {
             const body = await readBody(req);
             args = argsName.map((arg) => body[arg]);
@@ -37,6 +45,4 @@ export default function main(apiDefinition) {
 
         res.end(JSON.stringify(await method(...args)));
     };
-
-    return handler;
 }

@@ -80,7 +80,8 @@ function buildClientRecursive(instance, api, pathComponents, member?) {
     }
 }
 
-export default function <ApiDefinition>(api) {
+export default async function <ApiDefinition>() {
+    const api = await (await fetch("/api")).json();
     const client = new Client(api);
     buildClientRecursive(client, api, []);
     return client as ApiDefinition & Client<ApiDefinition>;
