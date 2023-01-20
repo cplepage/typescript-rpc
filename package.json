@@ -1,0 +1,22 @@
+{
+  "name": "typescript-rpc",
+  "version": "0.0.0",
+  "description": "Another attempt to a TypeScript end-to-end type safe framework.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/cplepage/typescript-rpc.git"
+  },
+  "author": "cplepage",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/cplepage/typescript-rpc/issues"
+  },
+  "homepage": "https://github.com/cplepage/typescript-rpc#readme",
+  "devDependencies": {
+    "@types/node": "^18.11.18"
+  }
+}
