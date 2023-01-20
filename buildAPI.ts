@@ -1,3 +1,4 @@
+// source: https://stackoverflow.com/a/31194949
 function $args(func) {
     return (func + '')
         .replace(/[/][/].*$/gm, '') // strip single-line comments
