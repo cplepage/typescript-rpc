@@ -1,8 +1,7 @@
 {
   "scripts": {
     "build": "esbuild client.ts --outfile=client.js --bundle --format=cjs --minify",
-    "prestart": "npm run build",
-    "start": "ts-node server"
+    "start": "npm run build && ts-node server"
   },
   "dependencies": {
     "@types/node": "^18.11.18",

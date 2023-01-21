@@ -3,8 +3,7 @@
     "build:client": "webpack",
     "build:server": "tsc server.ts",
     "build": "npm run build:client && npm run build:server",
-    "prestart": "npm run build",
-    "start": "node server"
+    "start": "npm run build && node server"
   },
   "dependencies": {
     "@types/express": "^4.17.15",
