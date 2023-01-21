@@ -2,6 +2,7 @@
 
 Another attempt to a TypeScript end-to-end type safe framework.
 
+[![Npm package version](https://badgen.net/npm/v/typescript-rpc)](https://npmjs.com/package/typescript-rpc)
 ```
 npm i typescript-rpc
 ```
