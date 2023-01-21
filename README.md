@@ -2,7 +2,11 @@
 
 Another attempt to a TypeScript end-to-end type safe framework.
 
-## Autocompletion heaven
+```
+npm i typescript-rpc
+```
+
+## Autocompletion Heaven
 
 ![Autocomplete in webstorm](https://files.cplepage.com/typescript-rpc/typescript-rpc-autocomplete.png)
 
@@ -35,7 +39,7 @@ const api = {
                     items.set(id, item);
                 },
                 async delete(id: string) {
-                    items.delete(id)
+                    items.delete(id);
                 }
             }
         }
@@ -52,7 +56,7 @@ export default api;
 const handler = createHandler(api);
 
 // pass it to your server
-http.createServer(handler).listen(8000)
+http.createServer(handler).listen(8000);
 ```
 
 ```ts
@@ -65,7 +69,7 @@ import createClient from "typescript-rpc/createClient";
 (async () => {
     // create your client with 
     // typeof <YOUR API DEFINITION>
-    const client = createClient<typeof api>()
+    const client = createClient<typeof api>();
 
     // make some calls!
     const helloWorld = await client.hello("Hello");
@@ -74,5 +78,15 @@ import createClient from "typescript-rpc/createClient";
 
 ## Example
 
-Checkout the `examples` directory to see how to build and bundle your file into
+Checkout the `examples` directory to see how to build and bundle your files into
 a functional web application.
+
+or try on StackBlitz
+
+**webpack-tsc-express**
+
+[![Open in StackBlitz](https://developer.stackblitz.com/img/open_in_stackblitz.svg)](https://stackblitz.com/edit/typescript-rpc-webpack-tsc-express)
+
+**ts-node-esbuild**
+
+[![Open in StackBlitz](https://developer.stackblitz.com/img/open_in_stackblitz.svg)](https://stackblitz.com/edit/typescript-rpc-ts-node-esbuild)
