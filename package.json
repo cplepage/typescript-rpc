@@ -1,8 +1,7 @@
 {
   "name": "typescript-rpc",
-  "version": "0.0.0",
+  "version": "0.0.1",
   "description": "Another attempt to a TypeScript end-to-end type safe framework.",
-  "main": "index.js",
   "scripts": {
     "prebuild": "esbuild --format=cjs --outfile=build.js build.ts",
     "build": "node build && tsc",
@@ -22,5 +21,15 @@
     "@types/node": "^18.11.18",
     "esbuild": "^0.17.3",
     "typescript": "^4.9.4"
+  },
+  "exports": {
+    "./createClient": {
+      "require": "./createClient.cjs",
+      "import": "./createClient.mjs"
+    },
+    "./createHandler": {
+      "require": "./createHandler.cjs",
+      "import": "./createHandler.mjs"
+    }
   }
 }

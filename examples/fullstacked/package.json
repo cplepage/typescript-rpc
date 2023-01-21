@@ -1,0 +1,11 @@
+{
+  "scripts": {
+    "start": "npx fullstacked watch",
+    "test": "npx fullstacked test"
+  },
+  "dependencies": {
+    "fullstacked": "^0.9.0",
+    "typescript-rpc": "^0.0.1"
+  },
+  "type": "module"
+}

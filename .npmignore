@@ -5,6 +5,9 @@ node_modules
 build.ts
 build.js
 buildAPI.ts
+buildAPI.d.ts
 createClient.ts
 createHandler.ts
+examples
 tsconfig.json
+*.tgz

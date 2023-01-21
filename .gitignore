@@ -1,4 +1,8 @@
 node_modules
 .idea
 *.js
+*.cjs
+*.mjs
 *.d.ts
+*.tgz
+dist

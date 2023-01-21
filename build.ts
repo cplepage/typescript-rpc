@@ -1,12 +1,27 @@
 import {buildSync} from "esbuild";
 
-[
-    "buildAPI.ts",
+const files = [
     "createClient.ts",
     "createHandler.ts"
-].forEach(file => buildSync({
-    entryPoints: [file],
-    outfile: file.slice(0, -2) + "js",
-    bundle: true,
-    format: "cjs"
-}))
+];
+
+files.forEach(file => {
+    const buildOptions = {
+        entryPoints: [file],
+        bundle: true
+    };
+
+    buildSync({
+        ...buildOptions,
+        outfile: file.slice(0, -2) + "cjs",
+        format: "cjs"
+    });
+
+    buildSync({
+        ...buildOptions,
+        outfile: file.slice(0, -2) + "mjs",
+        format: "esm"
+    });
+})
+
+

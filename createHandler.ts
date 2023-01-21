@@ -15,8 +15,10 @@ function readBody(req: IncomingMessage) {
     });
 }
 
-export default function (apiDefinition) {
+export default function createHandler(apiDefinition) {
     const api = buildAPI(apiDefinition);
+
+
 
     return async (req, res) => {
         if(req.url === "/api"){

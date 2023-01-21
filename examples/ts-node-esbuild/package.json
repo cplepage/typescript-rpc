@@ -1,0 +1,13 @@
+{
+  "scripts": {
+    "build": "esbuild client.ts --outfile=client.js --bundle --format=cjs --minify",
+    "prestart": "npm run build",
+    "start": "ts-node server"
+  },
+  "dependencies": {
+    "@types/node": "^18.11.18",
+    "esbuild": "^0.17.3",
+    "ts-node": "^10.9.1",
+    "typescript-rpc": "^0.0.1"
+  }
+}
