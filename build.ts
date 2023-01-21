@@ -23,5 +23,3 @@ files.forEach(file => {
         format: "esm"
     });
 })
-
-

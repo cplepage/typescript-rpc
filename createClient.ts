@@ -1,8 +1,10 @@
 class Client<ApiDefinition> {
     protected api;
+    protected origin;
 
-    constructor(api) {
-        this.api = api;
+    constructor(api, origin) {
+        this.api    = api;
+        this.origin = origin;
     }
 
     private clone() {
@@ -36,7 +38,7 @@ class Client<ApiDefinition> {
 }
 
 async function fetchCall(pathComponents, ...args) {
-    const url = new URL(window.location.origin);
+    const url = new URL(this.origin || window.location.origin);
 
     url.pathname = '/' + pathComponents.join('/');
 
@@ -80,9 +82,9 @@ function buildClientRecursive(instance, api, pathComponents, member?) {
     }
 }
 
-export default async function createClient<ApiDefinition>() {
-    const api = await (await fetch("/api")).json();
-    const client = new Client(api);
+export default async function createClient<ApiDefinition>(origin = "") {
+    const api = await (await fetch(`${origin}/api`)).json();
+    const client = new Client(api, origin);
     buildClientRecursive(client, api, []);
     return client as ApiDefinition & Client<ApiDefinition>;
 }

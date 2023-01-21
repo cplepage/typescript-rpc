@@ -1,6 +1,8 @@
 node_modules
 .idea
 *.js
+!webpack.config.js
+*.js.map
 *.cjs
 *.mjs
 *.d.ts

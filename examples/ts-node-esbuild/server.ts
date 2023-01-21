@@ -1,7 +1,14 @@
-import api from "./api";
 import * as http from "http";
 import {readFileSync} from "fs";
 import createHandler from "typescript-rpc/createHandler";
+
+const api = {
+    async hello(greeting: string){
+        return greeting + " World";
+    }
+}
+
+export default api;
 
 const rpcHandler = createHandler(api);
 
@@ -16,7 +23,7 @@ http.createServer(async (req, res) => {
     }
 
     res.end("<div></div><script src='/client.js'></script>");
-}).listen(8080);
+}).listen(8000);
 
-console.log("Listenning at http://localhost:8080");
+console.log("Listenning at http://localhost:8000");
 
