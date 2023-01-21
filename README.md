@@ -10,6 +10,7 @@ npm i typescript-rpc
 ## Autocompletion Heaven
 
 ![Autocomplete in webstorm](https://files.cplepage.com/typescript-rpc/typescript-rpc-autocomplete.png)
+![Autocomplete in StackBlitz](https://files.cplepage.com/typescript-rpc/autocomplete.png)
 
 ## Usage
 
