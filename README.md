@@ -92,3 +92,7 @@ or try on StackBlitz
 **ts-node-esbuild**
 
 [![Open in StackBlitz](https://developer.stackblitz.com/img/open_in_stackblitz.svg)](https://stackblitz.com/edit/typescript-rpc-ts-node-esbuild)
+
+**react-todo-app**
+
+[![Open in StackBlitz](https://developer.stackblitz.com/img/open_in_stackblitz.svg)](https://stackblitz.com/edit/typescript-rpc-react-todo-app)
