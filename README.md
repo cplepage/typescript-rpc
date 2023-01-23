@@ -10,6 +10,7 @@ npm i typescript-rpc
 ## Autocompletion Heaven
 
 ![Autocomplete in webstorm](https://files.cplepage.com/typescript-rpc/typescript-rpc-autocomplete.png)
+![Autocomplete in StackBlitz](https://files.cplepage.com/typescript-rpc/autocomplete.gif)
 
 ## Usage
 
@@ -91,3 +92,7 @@ or try on StackBlitz
 **ts-node-esbuild**
 
 [![Open in StackBlitz](https://developer.stackblitz.com/img/open_in_stackblitz.svg)](https://stackblitz.com/edit/typescript-rpc-ts-node-esbuild)
+
+**react-todo-app**
+
+[![Open in StackBlitz](https://developer.stackblitz.com/img/open_in_stackblitz.svg)](https://stackblitz.com/edit/typescript-rpc-react-todo-app)
