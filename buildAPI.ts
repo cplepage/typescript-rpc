@@ -14,8 +14,13 @@ function $args(func) {
 function buildAPI(serverObj) {
     const api = {};
     Object.keys(serverObj).forEach((key) => {
-        if (typeof serverObj[key] === 'function') api[key] = $args(serverObj[key]);
-        else api[key] = buildAPI(serverObj[key]);
+        if(key === "instance") return;
+        else if (typeof serverObj[key] === 'function')
+            api[key] = $args(serverObj[key]);
+        else if(serverObj[key].wrapped && serverObj[key].original)
+            api[key] = $args(serverObj[key].original);
+        else
+            api[key] = buildAPI(serverObj[key]);
     });
     return api;
 }
