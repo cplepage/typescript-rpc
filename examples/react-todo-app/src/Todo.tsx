@@ -12,7 +12,7 @@ export default function ({
   const [todo, setTodo] = React.useState<Todo>(null);
 
   const reloadTodo = () => {
-    client.Read(id).then(setTodo);
+    client.todos.Read(id).then(setTodo);
   };
 
   React.useEffect(reloadTodo, []);
@@ -20,7 +20,7 @@ export default function ({
   if (!todo) return;
 
   const completeTodo = async (e) => {
-    await client.put().Update(id, {
+    await client.put().todos.Update(id, {
       ...todo,
       done: e.currentTarget.checked,
     });
@@ -28,7 +28,7 @@ export default function ({
   };
 
   const deleteTodo = async () => {
-    await client.delete().Delete(id);
+    await client.delete().todos.Delete(id);
     didDelete();
   };
 

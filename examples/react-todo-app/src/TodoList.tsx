@@ -8,7 +8,7 @@ export default function () {
   const inputRef = React.useRef<HTMLInputElement>();
 
   const reloadTodos = () => {
-    client.List().then(setTodos);
+    client.todos.List().then(setTodos);
   };
 
   React.useEffect(reloadTodos, []);
@@ -21,7 +21,7 @@ export default function () {
 
     e.currentTarget.reset();
 
-    await client.post().Create({
+    await client.post().todos.Create({
       title: value,
       done: false,
     });

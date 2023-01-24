@@ -1,4 +1,4 @@
-import {Delete, Get, Post, Put} from "typescript-rpc/createHandler";
+import { Delete, Get, Post, Put } from 'typescript-rpc/createHandler';
 
 export type Todo = {
   id: number;
@@ -8,8 +8,7 @@ export type Todo = {
 
 const todos: Map<Todo['id'], Todo> = new Map();
 
-export default class Api {
-
+export default class Todos {
   async List() {
     return Array.from(todos.keys());
   }
@@ -39,5 +38,5 @@ export default class Api {
 
 // source: https://stackoverflow.com/a/7228322
 function randomIntFromInterval(min, max) {
-  return Math.floor(Math.random() * (max - min + 1) + min)
+  return Math.floor(Math.random() * (max - min + 1) + min);
 }
