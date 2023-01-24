@@ -1,5 +1,4 @@
 import * as React from 'react';
-import API from '../client';
 import type { Todo as TodoType } from '../todo-api';
 import Todo from './Todo';
 import client from "../client";
