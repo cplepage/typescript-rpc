@@ -11,7 +11,8 @@ testIntegration(describe("typescript-rpc integration tests", function() {
     let client;
     before(async function (){
         Server.start();
-        client = await createClient<typeof api>("http://localhost");
+        client = createClient<typeof api>("http://localhost");
+        await client.ready();
     });
 
     it("Should get Hello World", async () => {

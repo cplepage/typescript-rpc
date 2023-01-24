@@ -1,10 +1,28 @@
-class Client<ApiDefinition> {
-    protected api;
-    protected origin;
+import Api from "./examples/auth-app/api/main";
 
-    constructor(api, origin) {
-        this.api    = api;
+class Client<ApiDefinition> {
+    private api;
+    private origin;
+    private initialized: boolean = false;
+    private readyCallbacks: (() => void)[] = [];
+
+    constructor(origin) {
         this.origin = origin;
+        fetch(`${origin}/api`)
+            .then(response => response.json())
+            .then(api => {
+                buildClientRecursive(this, api, []);
+                this.api = api;
+                this.initialized = true;
+                this.readyCallbacks.forEach(cb => cb());
+            });
+    }
+
+    ready(): Promise<void>{
+        return new Promise(resolve => {
+            if(this.initialized) resolve();
+            this.readyCallbacks.push(resolve);
+        })
     }
 
     private clone() {
@@ -82,9 +100,12 @@ function buildClientRecursive(instance, api, pathComponents, member?) {
     }
 }
 
-export default async function createClient<ApiDefinition>(origin = "") {
-    const api = await (await fetch(`${origin}/api`)).json();
-    const client = new Client(api, origin);
-    buildClientRecursive(client, api, []);
-    return client as ApiDefinition & Client<ApiDefinition>;
+export default function createClient<ApiDefinition>(origin = "") {
+    return new Client<ApiDefinition>(origin) as any as ApiDefinition & {
+        ready(): ReturnType<Client<ApiDefinition>['ready']>,
+        get(): ApiDefinition,
+        post(): ApiDefinition,
+        put(): ApiDefinition,
+        delete(): ApiDefinition,
+    };
 }

@@ -1,4 +1,7 @@
 // source: https://stackoverflow.com/a/31194949
+import {type} from "os";
+import {build} from "esbuild";
+
 function $args(func) {
     return (func + '')
         .replace(/[/][/].*$/gm, '') // strip single-line comments
@@ -12,15 +15,17 @@ function $args(func) {
 }
 
 function buildAPI(serverObj) {
+    if(serverObj.originalFunction) {
+        return buildAPI(serverObj.originalFunction);
+    }
+
+    if(typeof serverObj === 'function') {
+        return $args(serverObj);
+    }
+
     const api = {};
     Object.keys(serverObj).forEach((key) => {
-        if(key === "instance") return;
-        else if (typeof serverObj[key] === 'function')
-            api[key] = $args(serverObj[key]);
-        else if(serverObj[key].wrapped && serverObj[key].original)
-            api[key] = $args(serverObj[key].original);
-        else
-            api[key] = buildAPI(serverObj[key]);
+        api[key] = buildAPI(serverObj[key]);
     });
     return api;
 }

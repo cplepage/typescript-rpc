@@ -1,9 +1,9 @@
 import * as http from 'http';
 import { readFileSync } from 'fs';
 import createHandler from 'typescript-rpc/createHandler';
-import api from './todo-api';
+import Api from './todo-api';
 
-const rpcHandler = createHandler(api);
+const rpcHandler = createHandler(new Api());
 
 http
   .createServer(async (req, res) => {

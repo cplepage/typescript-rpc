@@ -1,57 +1,56 @@
 import type { IncomingMessage } from 'http';
 import buildAPI from './buildAPI';
-import {type} from "os";
 
-
-export function Get(): any {
-    return function (target: any, propertyKey: string, descriptor: PropertyDescriptor) {
-        const original = descriptor.value;
-        descriptor.value = {
-            wrapped: function(method, ...args){
-                if(method !== "GET") return "Wrong Method!";
-                return original(...args);
-            },
-            original
-        }
-    };
+function checkMethod(method: string){
+    if(this.method !== method)
+        throw Error(`Wrong Method. Allowed [${method}] Used [${this.method}]`);
 }
 
-export function Post(): any {
-    return function (target: any, propertyKey: string, descriptor: PropertyDescriptor) {
-        const original = descriptor.value;
-        descriptor.value = {
-            wrapped: function(method, ...args){
-                if(method !== "POST") return "Wrong Method!";
-                return original.bind(this)(...args);
-            },
-            original
-        }
-    };
+function wrapFunction(originalFunction, wrappingFunction){
+    return {
+        middleware: function(...args) {
+            Object.assign(this, wrappingFunction.bind(this)());
+
+            if (originalFunction.middleware) {
+                originalFunction = originalFunction.middleware;
+            }
+
+            return originalFunction.bind(this)(...args);
+        },
+        originalFunction
+    }
 }
 
-export function Put(): any {
-    return function (target: any, propertyKey: string, descriptor: PropertyDescriptor) {
-        const original = descriptor.value;
-        descriptor.value = {
-            wrapped: function(method, ...args){
-                if(method !== "PUT") return "Wrong Method!";
-                return original(...args);
-            },
-            original
-        }
-    };
+export function Get(): any{
+    return Middleware(function (){
+        checkMethod.bind(this)("GET");
+    });
+}
+export function Post(): any{
+    return Middleware(function (){
+        checkMethod.bind(this)("POST");
+    });
+}
+export function Put(): any{
+    return Middleware(function (){
+        checkMethod.bind(this)("PUT");
+    });
+}
+export function Delete(): any{
+    return Middleware(function (){
+        checkMethod.bind(this)("DELETE");
+    });
 }
 
-export function Delete(): any {
+export function Middleware(wrappingFunction: Function): any {
     return function (target: any, propertyKey: string, descriptor: PropertyDescriptor) {
-        const original = descriptor.value;
-        descriptor.value = {
-            wrapped: function(method, ...args){
-                if(method !== "DELETE") return "Wrong Method!";
-                return original(...args);
-            },
-            original
+        if(!descriptor){
+            Object.keys(target.prototype).forEach(key => {
+                target.prototype[key] = wrapFunction(target.prototype[key], wrappingFunction);
+            })
+            return target;
         }
+        descriptor.value = wrapFunction(descriptor.value, wrappingFunction);
     };
 }
 
@@ -114,12 +113,7 @@ export default function createHandler(apiRaw) {
         const url = new URL('http://localhost' + req.url);
         const methodPath = url.pathname.slice(1).split('/');
 
-        let instance;
-        let method = methodPath.reduce((api, key, index) => {
-            if(index === methodPath.length - 1 && api?.instance)
-                instance = api.instance;
-            return api[key]
-        }, apiDefinition);
+        let method = methodPath.reduce((api, key, index) => api[key], apiDefinition);
 
         if(!method) return;
 
@@ -135,11 +129,17 @@ export default function createHandler(apiRaw) {
             );
         }
 
-        if (method.wrapped) {
-            method = method.wrapped;
-            args.unshift(req.method);
+        if (method.middleware) {
+            method = method.middleware;
         }
 
-        res.end(JSON.stringify(await method.bind(instance)(...args)));
+        let response;
+        try{
+            response = await method.bind(req)(...args);
+        }catch (e){
+            response = e.message;
+        }
+
+        res.end(JSON.stringify(response));
     };
 }

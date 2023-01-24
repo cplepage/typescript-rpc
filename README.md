@@ -68,14 +68,20 @@ http.createServer(handler).listen(8000);
 import type api from "./server";
 import createClient from "typescript-rpc/createClient";
 
+// create your client with 
+// typeof <YOUR API DEFINITION>
+const client = createClient<typeof api>();
+
 (async () => {
-    // create your client with 
-    // typeof <YOUR API DEFINITION>
-    const client = createClient<typeof api>();
+    // wait for the client to be ready
+    await client.ready();
 
     // make some calls!
     const helloWorld = await client.hello("Hello");
 })()
+
+// make sure to export your client and access it from anywhere!
+export default client;
 ```
 
 ## Example

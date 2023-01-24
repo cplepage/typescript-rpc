@@ -2,13 +2,14 @@ import * as React from 'react';
 import API from '../client';
 import type { Todo as TodoType } from '../todo-api';
 import Todo from './Todo';
+import client from "../client";
 
 export default function () {
   const [todos, setTodos] = React.useState<TodoType['id'][]>([]);
   const inputRef = React.useRef<HTMLInputElement>();
 
   const reloadTodos = () => {
-    API.client.List().then(setTodos);
+    client.List().then(setTodos);
   };
 
   React.useEffect(reloadTodos, []);
@@ -21,7 +22,7 @@ export default function () {
 
     e.currentTarget.reset();
 
-    await API.client.post().Create({
+    await client.post().Create({
       title: value,
       done: false,
     });

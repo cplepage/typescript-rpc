@@ -1,6 +1,7 @@
 import * as React from 'react';
 import API from '../client';
 import type { Todo } from '../todo-api';
+import client from "../client";
 
 export default function ({
   id,
@@ -12,7 +13,7 @@ export default function ({
   const [todo, setTodo] = React.useState<Todo>(null);
 
   const reloadTodo = () => {
-    API.client.Read(id).then(setTodo);
+    client.Read(id).then(setTodo);
   };
 
   React.useEffect(reloadTodo, []);
@@ -20,7 +21,7 @@ export default function ({
   if (!todo) return;
 
   const completeTodo = async (e) => {
-    await API.client.put().Update(id, {
+    await client.put().Update(id, {
       ...todo,
       done: e.currentTarget.checked,
     });
@@ -28,7 +29,7 @@ export default function ({
   };
 
   const deleteTodo = async () => {
-    await API.client.delete().Delete(id);
+    await client.delete().Delete(id);
     didDelete();
   };
 
