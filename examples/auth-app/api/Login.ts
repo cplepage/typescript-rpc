@@ -7,17 +7,17 @@ export function Authenticate(this: IncomingMessage){
     const token = this.headers.authorization;
 
     if(!token)
-        return Error("Unauthorized");
+        throw Error("Unauthorized");
 
     const userId = activeTokens.get(token);
 
     if(!userId)
-        return Error("Unauthorized");
+        throw Error("Unauthorized");
 
     const user = users.get(userId);
 
     if(!user)
-        return Error("Unauthorized");
+        throw Error("Unauthorized");
 
     return {
         token,
@@ -25,7 +25,7 @@ export function Authenticate(this: IncomingMessage){
     }
 }
 
-export type AuthenticatedRequest<T> = T & Partial<Exclude<ReturnType<typeof Authenticate>, Error>>;
+export type AuthenticatedRequest<T> = T & Partial<ReturnType<typeof Authenticate>>;
 
 export default class Login {
 
