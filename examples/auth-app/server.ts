@@ -1,7 +1,7 @@
 import * as http from "http";
 import {readFileSync} from "fs";
 import createHandler from "typescript-rpc/createHandler";
-import Api from "./api/main";
+import Api from "./api";
 import {activeTokens, users} from "./api/Data";
 
 const api = new Api();
