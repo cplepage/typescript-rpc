@@ -5,6 +5,7 @@ class Client<ApiDefinition> {
     private origin;
     private initialized: boolean = false;
     private readyCallbacks: (() => void)[] = [];
+    headers: {[key: string]: string} = {};
 
     constructor(origin) {
         this.origin = origin;
@@ -80,6 +81,8 @@ async function fetchCall(pathComponents, ...args) {
             });
     }
 
+    requestInit.headers = this.headers;
+
     const response = await fetch(url.toString(), requestInit);
 
     return parseInt(response.headers.get('Content-Length'))
@@ -102,6 +105,7 @@ function buildClientRecursive(instance, api, pathComponents, member?) {
 
 export default function createClient<ApiDefinition>(origin = "") {
     return new Client<ApiDefinition>(origin) as any as ApiDefinition & {
+        headers: Client<ApiDefinition>['headers'],
         ready(): ReturnType<Client<ApiDefinition>['ready']>,
         get(): ApiDefinition,
         post(): ApiDefinition,
