@@ -102,3 +102,7 @@ or try on StackBlitz
 **react-todo-app**
 
 [![Open in StackBlitz](https://developer.stackblitz.com/img/open_in_stackblitz.svg)](https://stackblitz.com/edit/typescript-rpc-react-todo-app)
+
+**auth-app**
+
+[![Open in StackBlitz](https://developer.stackblitz.com/img/open_in_stackblitz.svg)](https://stackblitz.com/edit/typescript-rpc-auth-app)
