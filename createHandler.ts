@@ -100,14 +100,26 @@ function convertClassesToObjRecursively(raw) {
     return api;
 }
 
+function callAPIMethod(req, res, method, ...args){
+    const response = method.bind(req)(...args);
+
+    if(response instanceof Promise) {
+        response
+            .then(awaitedResponse => res.end(JSON.stringify(awaitedResponse)))
+            .catch(error => res.end(JSON.stringify(error.message)));
+    }else{
+        res.end(JSON.stringify(response));
+    }
+}
+
 export default function createHandler(apiRaw) {
     const apiDefinition = convertClassesToObjRecursively(apiRaw);
     const api = buildAPI(apiDefinition);
 
-    return async (req, res) => {
+    return function (req, res) {
         if(req.url === "/api"){
             res.end(JSON.stringify(api));
-            return;
+            return true;
         }
 
         const url = new URL('http://localhost' + req.url);
@@ -115,31 +127,28 @@ export default function createHandler(apiRaw) {
 
         let method = methodPath.reduce((api, key, index) => api[key], apiDefinition);
 
-        if(!method) return;
-
-        const argsName = methodPath.reduce((api, key) => api[key], api);
-
-        let args;
-        if (req.method === 'POST' || req.method === 'PUT') {
-            const body = await readBody(req);
-            args = argsName.map((arg) => body[arg]);
-        } else {
-            args = argsName.map(
-                (arg) => JSON.parse(url.searchParams.get(arg)) ?? undefined
-            );
-        }
+        if(!method) return false;
 
         if (method.middleware) {
             method = method.middleware;
         }
 
-        let response;
-        try{
-            response = await method.bind(req)(...args);
-        }catch (e){
-            response = e.message;
+        const argsName = methodPath.reduce((api, key) => api[key], api);
+
+        if (req.method === 'POST' || req.method === 'PUT') {
+            readBody(req).then(body => {
+                const args = argsName.map((arg) => body[arg]);
+                callAPIMethod(req, res, method, ...args);
+            });
+            return true;
         }
 
-        res.end(JSON.stringify(response));
+        const args = argsName.map(
+            (arg) => JSON.parse(url.searchParams.get(arg)) ?? undefined
+        );
+
+        callAPIMethod(req, res, method, ...args);
+
+        return true;
     };
 }

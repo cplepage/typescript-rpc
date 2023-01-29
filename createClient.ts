@@ -1,5 +1,3 @@
-import Api from "./examples/auth-app/api/main";
-
 class Client<ApiDefinition> {
     private api;
     private origin;

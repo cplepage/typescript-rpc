@@ -1,0 +1,13 @@
+{
+  "scripts": {
+    "build": "esbuild client.ts --outfile=client.js --bundle --minify & esbuild server.ts --outfile=server.mjs",
+    "start": "npm run build && node server.mjs",
+    "bench": "(sleep 2 && npx autocannon http://localhost:8000/hello?greeting=hello) & npm start"
+  },
+  "dependencies": {
+    "@types/node": "^18.11.18",
+    "autocannon": "^7.10.0",
+    "esbuild": "^0.17.5",
+    "typescript-rpc": "file:../../typescript-rpc-0.0.4.tgz"
+  }
+}
