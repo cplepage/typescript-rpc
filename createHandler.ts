@@ -105,10 +105,10 @@ function callAPIMethod(req, res, method, ...args){
 
     if(response instanceof Promise) {
         response
-            .then(awaitedResponse => res.end(JSON.stringify(awaitedResponse)))
-            .catch(error => res.end(JSON.stringify(error.message)));
+            .then(awaitedResponse => res.end(awaitedResponse))
+            .catch(error => res.end(error.message));
     }else{
-        res.end(JSON.stringify(response));
+        res.end(response);
     }
 }
 
@@ -144,7 +144,7 @@ export default function createHandler(apiRaw) {
         }
 
         const args = argsName.map(
-            (arg) => JSON.parse(url.searchParams.get(arg)) ?? undefined
+            (arg) => url.searchParams.get(arg) ?? undefined
         );
 
         callAPIMethod(req, res, method, ...args);
