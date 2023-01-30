@@ -10,7 +10,12 @@ function checkMethod(method: string){
 function wrapFunction(originalFunction, wrappingFunction){
     return {
         middleware: function(...args) {
-            Object.assign(this, wrappingFunction.bind(this)());
+            const middlewareReturnedValue = wrappingFunction.bind(this)(...args);
+
+            if(middlewareReturnedValue?.args)
+                args = middlewareReturnedValue.args;
+
+            Object.assign(this, middlewareReturnedValue);
 
             if (originalFunction.middleware) {
                 originalFunction = originalFunction.middleware;
@@ -43,10 +48,42 @@ export function Delete(): any{
     });
 }
 
+function maybeNumber(value){
+    const floatValue = parseFloat(value);
+    return floatValue.toString() === value ? floatValue : value;
+}
+
+export function Numbers(): any {
+    return Middleware(function (...args){
+        args = args.map(arg => {
+            if(typeof arg === "object" && Array.isArray(arg)){
+                return arg.map(maybeNumber);
+            }
+
+            return maybeNumber(arg)
+        });
+        return {args};
+    })
+}
+
+export function Json(): any {
+    return Middleware(function (...args){
+        args = args.map(arg => {
+            try{
+                return JSON.parse(arg);
+            }catch (e) {
+                return arg;
+            }
+        });
+        return {args};
+    })
+}
+
 export function Middleware(wrappingFunction: Function): any {
     return function (target: any, propertyKey: string, descriptor: PropertyDescriptor) {
         if(!descriptor){
-            Object.keys(target.prototype).forEach(key => {
+            const keys = Object.getOwnPropertyNames(Object.getPrototypeOf(new target));
+            keys.forEach(key => {
                 target.prototype[key] = wrapFunction(target.prototype[key], wrappingFunction);
             })
             return target;
@@ -101,16 +138,29 @@ function convertClassesToObjRecursively(raw) {
     return api;
 }
 
-function makeSureItsString(obj: any){
-    return typeof obj === "string" ? obj : JSON.stringify(obj);
-}
-
 function callAPIMethod(req, res, method, ...args){
     let response;
     try{
         response = method.bind(req)(...args);
     }catch (e){
         response = {error: e.message};
+    }
+
+    const makeSureItsString = (obj: any) => {
+        if(!obj) return obj;
+
+        let headers = {};
+
+        if (typeof obj !== "string") {
+            obj = JSON.stringify(obj);
+            headers["Content-Type"] = "application/json";
+        }
+
+        headers["Content-Length"] = obj.length;
+
+        res.writeHead(200, headers);
+
+        return obj;
     }
 
     if(response instanceof Promise) {
@@ -144,6 +194,9 @@ export default function createHandler(apiRaw) {
 
         if(!method) return false;
 
+        if(typeof method === "object" && method[""])
+            method = method[""];
+
         if (method.middleware) {
             method = method.middleware;
         }
@@ -161,9 +214,7 @@ export default function createHandler(apiRaw) {
         let args = [];
         if(argsName.length){
             const queryParams = fastQueryString.parse(urlComponents.join("?"));
-            args = argsName.map(
-                (arg) => queryParams[arg] ?? undefined
-            );
+            args = argsName.map((arg) => queryParams[arg] ?? undefined);
         }
 
 

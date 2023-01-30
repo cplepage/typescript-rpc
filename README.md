@@ -22,25 +22,25 @@ import * as http from "http";
 
 // define your api
 const api = {
-    async hello(greeting: string) {
+    hello(greeting: string) {
         return greeting + " World";
     },
     // you can nest and regroup methods
     foo: {
         bar: {
             baz: {
-                async create(item: Item) {
+                create(item: Item) {
                     const id = randomUUID();
                     items.set(id, item);
                     return id;
                 },
-                async read(id: string) {
+                read(id: string) {
                     return items.get(id);
                 },
-                async update(id: string, item: Item) {
+                update(id: string, item: Item) {
                     items.set(id, item);
                 },
-                async delete(id: string) {
+                delete(id: string) {
                     items.delete(id);
                 }
             }
@@ -91,6 +91,12 @@ a functional web application.
 
 or try on StackBlitz
 
+### Build Examples
+
+**esbuild**
+
+[![Open in StackBlitz](https://developer.stackblitz.com/img/open_in_stackblitz.svg)](https://stackblitz.com/edit/typescript-rpc-esbuild)
+
 **webpack-tsc-express**
 
 [![Open in StackBlitz](https://developer.stackblitz.com/img/open_in_stackblitz.svg)](https://stackblitz.com/edit/typescript-rpc-webpack-tsc-express)
@@ -99,6 +105,8 @@ or try on StackBlitz
 
 [![Open in StackBlitz](https://developer.stackblitz.com/img/open_in_stackblitz.svg)](https://stackblitz.com/edit/typescript-rpc-ts-node-esbuild)
 
+### Sample Apps
+
 **react-todo-app**
 
 [![Open in StackBlitz](https://developer.stackblitz.com/img/open_in_stackblitz.svg)](https://stackblitz.com/edit/typescript-rpc-react-todo-app)
@@ -106,3 +114,13 @@ or try on StackBlitz
 **auth-app**
 
 [![Open in StackBlitz](https://developer.stackblitz.com/img/open_in_stackblitz.svg)](https://stackblitz.com/edit/typescript-rpc-auth-app)
+
+**static-site**
+
+[![Open in StackBlitz](https://developer.stackblitz.com/img/open_in_stackblitz.svg)](https://stackblitz.com/edit/typescript-rpc-static-site)
+
+### Experiments
+
+**data-types**
+
+[![Open in StackBlitz](https://developer.stackblitz.com/img/open_in_stackblitz.svg)](https://stackblitz.com/edit/typescript-rpc-data-types)

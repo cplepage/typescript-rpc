@@ -1,0 +1,11 @@
+{
+  "scripts": {
+    "build": "esbuild server.ts --outfile=server.mjs",
+    "start": "npm run build && node server.mjs"
+  },
+  "dependencies": {
+    "@types/node": "^18.11.18",
+    "esbuild": "^0.17.5",
+    "typescript-rpc": "^0.0.5"
+  }
+}

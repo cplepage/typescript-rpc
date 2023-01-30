@@ -1,10 +1,23 @@
 import * as http from "http";
 import {readFileSync} from "fs";
-import createHandler from "typescript-rpc/createHandler";
+import createHandler, {Json, Numbers} from "typescript-rpc/createHandler";
+
+
 
 class Api {
-    hello(){
-        return "Hello World";
+    @Numbers()
+    add(a: number, b: number){
+        return a + b;
+    }
+
+    @Numbers()
+    getValueAtIndex(arr: any[], index: number){
+        return arr[index];
+    }
+
+    @Json()
+    getValueAtProperty(obj: object, key: string){
+        return obj[key];
     }
 }
 

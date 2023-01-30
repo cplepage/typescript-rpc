@@ -4,7 +4,8 @@ import createClient from "typescript-rpc/createClient";
 const client = createClient<typeof api>();
 
 (async () => {
-    document.body.innerHTML = await client.hello("Hi");
+    await client.ready();
+    document.body.innerHTML = await client.hello();
 })()
 
 export default client;

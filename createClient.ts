@@ -4,7 +4,6 @@ class Client<ApiDefinition> {
     private initialized: boolean = false;
     private readyCallbacks: (() => void)[] = [];
     headers: {[key: string]: string} = {};
-    deserializer: (response: Response) => any;
 
     constructor(origin) {
         this.origin = origin;
@@ -76,7 +75,19 @@ async function fetchCall(pathComponents, ...args) {
         }
         default:
             args.forEach((value, index) => {
-                url.searchParams.append(argsName[index], value);
+                const isObject = typeof value === "object";
+
+                if(!isObject) {
+                    url.searchParams.append(argsName[index], value);
+                    return;
+                }
+
+                if(Array.isArray(value)){
+                    value.forEach(item => url.searchParams.append(argsName[index], item));
+                    return;
+                }
+
+                url.searchParams.append(argsName[index], JSON.stringify(value));
             });
     }
 
@@ -84,11 +95,14 @@ async function fetchCall(pathComponents, ...args) {
 
     const response = await fetch(url.toString(), requestInit);
 
-    return parseInt(response.headers.get('Content-Length'))
-        ? this.deserializer
-            ? this.deserializer(response)
-            : response.text()
-        : null;
+    if(!parseInt(response.headers.get('Content-Length')))
+        return undefined;
+
+    if(response.headers.get('Content-Type') === "application/json")
+        return JSON.parse(await response.text());
+
+
+    return response.text();
 }
 
 function buildClientRecursive(instance, api, pathComponents, member?) {
@@ -118,7 +132,6 @@ type AwaitAll<T> = {
 export default function createClient<ApiDefinition>(origin = "") {
     return new Client<ApiDefinition>(origin) as any as AwaitAll<ApiDefinition> & {
         headers: Client<ApiDefinition>['headers'],
-        deserializer: Client<ApiDefinition>['deserializer'],
         ready(): ReturnType<Client<ApiDefinition>['ready']>,
         get(): AwaitAll<ApiDefinition>,
         post(): AwaitAll<ApiDefinition>,
