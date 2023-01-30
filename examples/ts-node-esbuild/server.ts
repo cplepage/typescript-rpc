@@ -3,7 +3,7 @@ import {readFileSync} from "fs";
 import createHandler from "typescript-rpc/createHandler";
 
 const api = {
-    async hello(greeting: string){
+    hello(greeting: string){
         return greeting + " World";
     }
 }

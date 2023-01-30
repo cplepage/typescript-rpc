@@ -1,7 +1,7 @@
 import { Delete, Get, Post, Put } from 'typescript-rpc/createHandler';
 
 export type Todo = {
-  id: number;
+  id: string;
   title: string;
   done: boolean;
 };
@@ -14,24 +14,24 @@ export default class Todos {
   }
 
   @Post()
-  async Create(todo: Omit<Todo, 'id'>) {
-    const id = randomIntFromInterval(111111, 999999);
+  Create(todo: Omit<Todo, 'id'>) {
+    const id = randomIntFromInterval(111111, 999999).toString();
     todos.set(id, { id: id, ...todo });
     return id;
   }
 
   @Get()
-  async Read(id: number) {
+  Read(id: string) {
     return todos.get(id);
   }
 
   @Put()
-  async Update(id: number, todo: Todo) {
+  Update(id: string, todo: Todo) {
     todos.set(id, todo);
   }
 
   @Delete()
-  async Delete(id: number) {
+  Delete(id: string) {
     todos.delete(id);
   }
 }

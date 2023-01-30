@@ -101,15 +101,26 @@ function convertClassesToObjRecursively(raw) {
     return api;
 }
 
+function makeSureItsString(obj: any){
+    return typeof obj === "string" ? obj : JSON.stringify(obj);
+}
+
 function callAPIMethod(req, res, method, ...args){
-    const response = method.bind(req)(...args);
+    let response;
+    try{
+        response = method.bind(req)(...args);
+    }catch (e){
+        response = {error: e.message};
+    }
 
     if(response instanceof Promise) {
         response
-            .then(awaitedResponse => res.end(awaitedResponse))
-            .catch(error => res.end(error.message));
+            .then(awaitedResponse => {
+                res.end(makeSureItsString(awaitedResponse))
+            })
+            .catch(error => res.end(makeSureItsString({error: error.message})));
     }else{
-        res.end(response);
+        res.end(makeSureItsString(response));
     }
 }
 

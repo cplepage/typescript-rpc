@@ -2,11 +2,13 @@ import * as http from "http";
 import {readFileSync} from "fs";
 import createHandler from "typescript-rpc/createHandler";
 
-const api = {
-    hello(){
-        return "Hello World";
+class Api {
+    hello(greeting: string){
+        return greeting + " World";
     }
 }
+
+const api = new Api();
 
 export default api;
 

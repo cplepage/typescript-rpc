@@ -4,6 +4,7 @@ class Client<ApiDefinition> {
     private initialized: boolean = false;
     private readyCallbacks: (() => void)[] = [];
     headers: {[key: string]: string} = {};
+    deserializer: (response: Response) => any;
 
     constructor(origin) {
         this.origin = origin;
@@ -75,7 +76,7 @@ async function fetchCall(pathComponents, ...args) {
         }
         default:
             args.forEach((value, index) => {
-                url.searchParams.append(argsName[index], JSON.stringify(value));
+                url.searchParams.append(argsName[index], value);
             });
     }
 
@@ -84,7 +85,9 @@ async function fetchCall(pathComponents, ...args) {
     const response = await fetch(url.toString(), requestInit);
 
     return parseInt(response.headers.get('Content-Length'))
-        ? response.text()
+        ? this.deserializer
+            ? this.deserializer(response)
+            : response.text()
         : null;
 }
 
@@ -101,13 +104,25 @@ function buildClientRecursive(instance, api, pathComponents, member?) {
     }
 }
 
+type OnlyOnePromise<T> = T extends PromiseLike<any>
+    ? T
+    : Promise<T>;
+
+type AwaitAll<T> = {
+    [K in keyof T]:  T[K] extends ((...args: any) => any)
+        ? (...args: T[K] extends ((...args: infer P) => any) ? P : never[]) =>
+            OnlyOnePromise<(T[K] extends ((...args: any) => any) ? ReturnType<T[K]> : any)>
+        : AwaitAll<T[K]>
+}
+
 export default function createClient<ApiDefinition>(origin = "") {
-    return new Client<ApiDefinition>(origin) as any as ApiDefinition & {
+    return new Client<ApiDefinition>(origin) as any as AwaitAll<ApiDefinition> & {
         headers: Client<ApiDefinition>['headers'],
+        deserializer: Client<ApiDefinition>['deserializer'],
         ready(): ReturnType<Client<ApiDefinition>['ready']>,
-        get(): ApiDefinition,
-        post(): ApiDefinition,
-        put(): ApiDefinition,
-        delete(): ApiDefinition,
+        get(): AwaitAll<ApiDefinition>,
+        post(): AwaitAll<ApiDefinition>,
+        put(): AwaitAll<ApiDefinition>,
+        delete(): AwaitAll<ApiDefinition>,
     };
 }

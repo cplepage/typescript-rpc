@@ -30,7 +30,7 @@ export type AuthenticatedRequest<T> = T & Partial<ReturnType<typeof Authenticate
 export default class Login {
 
     @Post()
-    async register(username: string, password: string){
+    register(username: string, password: string){
         const id = randomUUID();
         users.set(id, {
             id,
@@ -40,7 +40,7 @@ export default class Login {
     }
 
     @Post()
-    async login(username: string, password: string){
+    login(username: string, password: string){
         for(const user of Array.from(users.values())){
             if(user.username !== username) continue;
 
@@ -49,19 +49,20 @@ export default class Login {
 
             const token = randomUUID();
             activeTokens.set(token, user.id);
-            return token;
+            return {token};
         }
         return {code: 2, error: "Cannot find user"};
     }
 
     @Post()
-    async verify(token: string){
-        return activeTokens.get(token);
+    verify(token: string){
+        const userId = activeTokens.get(token)
+        return {userId};
     }
 
     @Post()
     @Middleware(Authenticate)
-    async logout(this: AuthenticatedRequest<this>){
+    logout(this: AuthenticatedRequest<this>){
         activeTokens.delete(this.token);
     }
 

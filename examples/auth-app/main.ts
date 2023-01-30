@@ -28,8 +28,8 @@ function renderLogin(){
 
         const response = await client.post().login.login(username, password);
 
-        if(typeof response === 'string'){
-            window.localStorage.setItem("token", response);
+        if(response.token){
+            window.localStorage.setItem("token", response.token);
             window.location.reload();
             return;
         }
@@ -98,7 +98,7 @@ export default async function main(){
 
     const token = window.localStorage.getItem("token");
 
-    if(!token || !await client.post().login.verify(token)){
+    if(!token || !(await client.post().login.verify(token))?.userId){
         renderLogin();
         return;
     }

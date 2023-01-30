@@ -17,9 +17,9 @@ setInterval(() => {
 http.createServer(async (req, res) => {
     console.log(req?.method, req?.url);
 
-    await rpcHandler(req, res);
+    const sending = rpcHandler(req, res);
 
-    if(res.headersSent) return;
+    if(sending) return;
 
     if(req?.url?.endsWith("client.js")){
         res.end(readFileSync("client.js"));

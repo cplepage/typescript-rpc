@@ -2,7 +2,7 @@ import createHandler from "typescript-rpc/createHandler";
 import * as express from "express";
 
 const api = {
-    async hello(greeting: string){
+    hello(greeting: string){
         return greeting + " World";
     }
 }
