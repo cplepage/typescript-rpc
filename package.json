@@ -31,5 +31,8 @@
       "require": "./createHandler.cjs",
       "import": "./createHandler.mjs"
     }
+  },
+  "dependencies": {
+    "fast-querystring": "^1.1.0"
   }
 }

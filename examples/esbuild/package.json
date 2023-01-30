@@ -2,7 +2,7 @@
   "scripts": {
     "build": "esbuild client.ts --outfile=client.js --bundle --minify & esbuild server.ts --outfile=server.mjs",
     "start": "npm run build && node server.mjs",
-    "bench": "(sleep 2 && npx autocannon http://localhost:8000/hello?greeting=hello) & npm start"
+    "bench": "(sleep 2 && npx autocannon http://localhost:8000/hello) & npm start"
   },
   "dependencies": {
     "@types/node": "^18.11.18",

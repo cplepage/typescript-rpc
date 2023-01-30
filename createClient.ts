@@ -84,7 +84,7 @@ async function fetchCall(pathComponents, ...args) {
     const response = await fetch(url.toString(), requestInit);
 
     return parseInt(response.headers.get('Content-Length'))
-        ? response.json()
+        ? response.text()
         : null;
 }
 

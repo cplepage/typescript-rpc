@@ -1,5 +1,6 @@
 import type { IncomingMessage } from 'http';
 import buildAPI from './buildAPI';
+import * as fastQueryString from "fast-querystring";
 
 function checkMethod(method: string){
     if(this.method !== method)
@@ -122,8 +123,11 @@ export default function createHandler(apiRaw) {
             return true;
         }
 
-        const url = new URL('http://localhost' + req.url);
-        const methodPath = url.pathname.slice(1).split('/');
+        const urlComponents = req.url.split("?");
+
+        const url = urlComponents.shift();
+        const methodPath = url.split('/');
+        methodPath.shift();
 
         let method = methodPath.reduce((api, key, index) => api[key], apiDefinition);
 
@@ -143,9 +147,14 @@ export default function createHandler(apiRaw) {
             return true;
         }
 
-        const args = argsName.map(
-            (arg) => url.searchParams.get(arg) ?? undefined
-        );
+        let args = [];
+        if(argsName.length){
+            const queryParams = fastQueryString.parse(urlComponents.join("?"));
+            args = argsName.map(
+                (arg) => queryParams[arg] ?? undefined
+            );
+        }
+
 
         callAPIMethod(req, res, method, ...args);
 
