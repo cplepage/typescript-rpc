@@ -5,7 +5,7 @@
   "scripts": {
     "prebuild": "esbuild --format=cjs --outfile=build.js build.ts",
     "build": "node build && tsc",
-    "prepare": "npm run build"
+    "prepack": "npm run build"
   },
   "repository": {
     "type": "git",

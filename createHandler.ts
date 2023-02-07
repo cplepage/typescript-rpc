@@ -1,6 +1,7 @@
 import type { IncomingMessage } from 'http';
 import buildAPI from './buildAPI';
 import * as fastQueryString from "fast-querystring";
+import { resolve } from 'path';
 
 function checkMethod(method: string){
     if(this.method !== method)
@@ -138,7 +139,7 @@ function convertClassesToObjRecursively(raw) {
     return api;
 }
 
-function callAPIMethod(req, res, method, ...args){
+function callAPIMethod(req, res, method, ...args): true | Promise<true>{
     let response;
     try{
         response = method.bind(req)(...args);
@@ -164,21 +165,23 @@ function callAPIMethod(req, res, method, ...args){
     }
 
     if(response instanceof Promise) {
-        response
-            .then(awaitedResponse => {
-                res.end(makeSureItsString(awaitedResponse))
-            })
-            .catch(error => res.end(makeSureItsString({error: error.message})));
-    }else{
-        res.end(makeSureItsString(response));
+        return new Promise(resolve => {
+            response
+                .then(awaitedResponse => res.end(makeSureItsString(awaitedResponse)))
+                .catch(error => res.end(makeSureItsString({error: error.message})))
+                .finally(() => resolve(true));
+        });
     }
+
+    res.end(makeSureItsString(response));
+    return true;
 }
 
 export default function createHandler(apiRaw) {
     const apiDefinition = convertClassesToObjRecursively(apiRaw);
     const api = buildAPI(apiDefinition);
 
-    return function (req, res) {
+    return function (req, res) : Boolean | Promise<Boolean> {
         if(req.url === "/api"){
             res.end(JSON.stringify(api));
             return true;
@@ -204,11 +207,16 @@ export default function createHandler(apiRaw) {
         const argsName = methodPath.reduce((api, key) => api[key], api);
 
         if (req.method === 'POST' || req.method === 'PUT') {
-            readBody(req).then(body => {
-                const args = argsName.map((arg) => body[arg]);
-                callAPIMethod(req, res, method, ...args);
-            });
-            return true;
+            return new Promise<Boolean>(resolve => {
+                readBody(req).then(body => {
+                    const args = argsName.map((arg) => body[arg]);
+                    const apiCall = callAPIMethod(req, res, method, ...args);
+                    if(apiCall instanceof Promise)
+                        apiCall.then(() => resolve(true));
+                    else
+                        resolve(true);
+                });
+            })
         }
 
         let args = [];
@@ -217,9 +225,6 @@ export default function createHandler(apiRaw) {
             args = argsName.map((arg) => queryParams[arg] ?? undefined);
         }
 
-
-        callAPIMethod(req, res, method, ...args);
-
-        return true;
+        return callAPIMethod(req, res, method, ...args);;
     };
 }
