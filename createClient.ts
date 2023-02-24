@@ -95,9 +95,6 @@ async function fetchCall(pathComponents, ...args) {
 
     const response = await fetch(url.toString(), requestInit);
 
-    if(!parseInt(response.headers.get('Content-Length')))
-        return undefined;
-
     if(response.headers.get('Content-Type') === "application/json")
         return JSON.parse(await response.text());
 

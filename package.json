@@ -1,6 +1,6 @@
 {
   "name": "typescript-rpc",
-  "version": "0.0.9",
+  "version": "0.0.10",
   "description": "Another attempt to a TypeScript end-to-end type safe framework.",
   "scripts": {
     "prebuild": "esbuild --format=cjs --outfile=build.js build.ts",
