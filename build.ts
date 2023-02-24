@@ -8,7 +8,8 @@ const files = [
 files.forEach(file => {
     const buildOptions = {
         entryPoints: [file],
-        bundle: true
+        bundle: true,
+        external: ["fast-querystring"]
     };
 
     buildSync({

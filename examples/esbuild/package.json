@@ -8,6 +8,6 @@
     "@types/node": "^18.11.18",
     "autocannon": "^7.10.0",
     "esbuild": "^0.17.5",
-    "typescript-rpc": "file:../../typescript-rpc-0.0.5.tgz"
+    "typescript-rpc": "file:../../typescript-rpc-0.0.6.tgz"
   }
 }
