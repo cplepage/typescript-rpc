@@ -1,7 +1,6 @@
 import type { IncomingMessage } from 'http';
 import buildAPI from './buildAPI';
 import * as fastQueryString from "fast-querystring";
-import { resolve } from 'path';
 
 function checkMethod(method: string){
     if(this.method !== method)
@@ -156,8 +155,6 @@ function callAPIMethod(req, res, method, ...args): true | Promise<true>{
             obj = JSON.stringify(obj);
             headers["Content-Type"] = "application/json";
         }
-
-        headers["Content-Length"] = obj.length;
 
         res.writeHead(200, headers);
 
