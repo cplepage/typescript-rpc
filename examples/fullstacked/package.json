@@ -7,7 +7,7 @@
   },
   "dependencies": {
     "fullstacked": "^0.9.0",
-    "typescript-rpc": "^0.0.5"
+    "typescript-rpc": "^0.0.8"
   },
   "type": "module"
 }
