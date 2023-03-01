@@ -146,8 +146,8 @@ function callAPIMethod(req, res, method, ...args): true | Promise<true>{
         response = {error: e.message};
     }
 
-    const makeSureItsString = (obj: any) => {
-        if(!obj) return obj;
+    const makeSureItsStringOrBuffer = (obj: any) => {
+        if(!obj || obj instanceof Buffer) return obj;
 
         let headers = {};
 
@@ -164,13 +164,13 @@ function callAPIMethod(req, res, method, ...args): true | Promise<true>{
     if(response instanceof Promise) {
         return new Promise(resolve => {
             response
-                .then(awaitedResponse => res.end(makeSureItsString(awaitedResponse)))
-                .catch(error => res.end(makeSureItsString({error: error.message})))
+                .then(awaitedResponse => res.end(makeSureItsStringOrBuffer(awaitedResponse)))
+                .catch(error => res.end(makeSureItsStringOrBuffer({error: error.message})))
                 .finally(() => resolve(true));
         });
     }
 
-    res.end(makeSureItsString(response));
+    res.end(makeSureItsStringOrBuffer(response));
     return true;
 }
 
