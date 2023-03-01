@@ -190,7 +190,7 @@ export default function createHandler(apiRaw) {
         const methodPath = url.split('/');
         methodPath.shift();
 
-        let method = methodPath.reduce((api, key, index) => api[key], apiDefinition);
+        let method = methodPath.reduce((api, key, index) => api ? api[key] : undefined, apiDefinition);
 
         if(!method) return false;
 
