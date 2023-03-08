@@ -57,7 +57,7 @@ class Client<ApiDefinition> {
 async function fetchCall(pathComponents, ...args) {
     const url = new URL(this.origin || window.location.origin);
 
-    url.pathname = '/' + pathComponents.join('/');
+    url.pathname += (url.pathname.endsWith("/") ? "" : "/") + pathComponents.join('/');
 
     const requestInit: RequestInit = {
         method: this.method ?? 'GET',
