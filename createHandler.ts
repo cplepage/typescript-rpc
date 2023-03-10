@@ -1,4 +1,4 @@
-import type { IncomingMessage } from 'http';
+import type { IncomingMessage, ServerResponse } from 'http';
 import buildAPI from './buildAPI';
 import * as fastQueryString from "fast-querystring";
 
@@ -138,39 +138,45 @@ function convertClassesToObjRecursively(raw) {
     return api;
 }
 
-function callAPIMethod(req, res, method, ...args): true | Promise<true>{
-    let response;
+function callAPIMethod(req, res: ServerResponse, method, ...args): true | Promise<true>{
+    let response, status = 200;
     try{
         response = method.bind(req)(...args);
     }catch (e){
+        status = 500;
         response = {error: e.message};
     }
 
     const makeSureItsStringOrBuffer = (obj: any) => {
         if(!obj || obj instanceof Buffer) return obj;
 
-        let headers = {};
-
         if (typeof obj !== "string") {
             obj = JSON.stringify(obj);
-            headers["Content-Type"] = "application/json";
+            res.setHeader("Content-Type", "application/json");
         }
 
-        res.writeHead(200, headers);
-
         return obj;
+    }
+
+    const send = (data) => {
+        const payload = makeSureItsStringOrBuffer(data)
+        res.writeHead(status);
+        res.end(payload);
     }
 
     if(response instanceof Promise) {
         return new Promise(resolve => {
             response
-                .then(awaitedResponse => res.end(makeSureItsStringOrBuffer(awaitedResponse)))
-                .catch(error => res.end(makeSureItsStringOrBuffer({error: error.message})))
+                .then(awaitedResponse => send(awaitedResponse))
+                .catch(error => {
+                    status = 500;
+                    send(error.message);
+                })
                 .finally(() => resolve(true));
         });
     }
 
-    res.end(makeSureItsStringOrBuffer(response));
+    send(response);
     return true;
 }
 

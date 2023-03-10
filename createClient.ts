@@ -95,11 +95,14 @@ async function fetchCall(pathComponents, ...args) {
 
     const response = await fetch(url.toString(), requestInit);
 
-    if(response.headers.get('Content-Type') === "application/json")
-        return JSON.parse(await response.text());
+    const data = response.headers.get('Content-Type') === "application/json"
+        ? await response.json()
+        : await response.text();
 
+    if(response.status >= 400)
+        throw new Error(data);
 
-    return response.text();
+    return data;
 }
 
 function buildClientRecursive(instance, api, pathComponents, member?) {
