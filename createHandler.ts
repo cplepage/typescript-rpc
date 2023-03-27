@@ -9,8 +9,11 @@ function checkMethod(method: string){
 
 function wrapFunction(originalFunction, wrappingFunction){
     return {
-        middleware: function(...args) {
-            const middlewareReturnedValue = wrappingFunction.bind(this)(...args);
+        middleware: async function(...args) {
+            let middlewareReturnedValue = wrappingFunction.bind(this)(...args);
+
+            if(middlewareReturnedValue instanceof Promise)
+                middlewareReturnedValue = await middlewareReturnedValue;
 
             if(middlewareReturnedValue?.args)
                 args = middlewareReturnedValue.args;
