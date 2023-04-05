@@ -1,5 +1,4 @@
 import type { IncomingMessage, ServerResponse } from 'http';
-import buildAPI from './buildAPI';
 import * as fastQueryString from "fast-querystring";
 
 function checkMethod(method: string){
@@ -82,7 +81,7 @@ export function Json(): any {
     })
 }
 
-export function Middleware(wrappingFunction: Function): any {
+export function Middleware(wrappingFunction: (this: IncomingMessage, ...args: any[]) => any): any {
     return function (target: any, propertyKey: string, descriptor: PropertyDescriptor) {
         if(!descriptor){
             const keys = Object.getOwnPropertyNames(Object.getPrototypeOf(new target));
@@ -107,38 +106,6 @@ function readBody(req: IncomingMessage) {
             resolve(JSON.parse(jsonString));
         });
     });
-}
-
-// source: https://stackoverflow.com/a/58568121
-function classToObject (theClass) {
-    const originalClass = theClass || {}
-    const keys = Object.getOwnPropertyNames(Object.getPrototypeOf(originalClass))
-        .concat(Object.getOwnPropertyNames(theClass))
-    return keys.reduce((classAsObj, key) => {
-        classAsObj[key] = originalClass[key]
-        return classAsObj
-    }, {})
-}
-
-// source: https://stackoverflow.com/a/63228981
-function isPlainObject(obj) {
-    const prototype = Object.getPrototypeOf(obj);
-    return  prototype === Object.getPrototypeOf({}) ||
-        prototype === null;
-}
-
-function convertClassesToObjRecursively(raw) {
-    if (typeof raw === "object" && !isPlainObject(raw)) {
-        raw = classToObject(raw);
-    }else if(typeof raw === "function")
-        return raw;
-
-    let api: any = {};
-    Object.keys(raw).forEach(key => {
-        if(key === "constructor") return;
-        api[key] = convertClassesToObjRecursively(raw[key]);
-    });
-    return api;
 }
 
 function callAPIMethod(req, res: ServerResponse, method, ...args): true | Promise<true>{
@@ -183,23 +150,15 @@ function callAPIMethod(req, res: ServerResponse, method, ...args): true | Promis
     return true;
 }
 
-export default function createHandler(apiRaw) {
-    const apiDefinition = convertClassesToObjRecursively(apiRaw);
-    const api = buildAPI(apiDefinition);
-
+export default function createHandler(api) {
     return function (req, res) : Boolean | Promise<Boolean> {
-        if(req.url === "/api"){
-            res.end(JSON.stringify(api));
-            return true;
-        }
-
         const urlComponents = req.url.split("?");
 
         const url = urlComponents.shift();
         const methodPath = url.split('/');
         methodPath.shift();
 
-        let method = methodPath.reduce((api, key, index) => api ? api[key] : undefined, apiDefinition);
+        let method = methodPath.reduce((api, key) => api ? api[key] : undefined, api);
 
         if(!method) return false;
 
@@ -210,12 +169,10 @@ export default function createHandler(apiRaw) {
             method = method.middleware;
         }
 
-        const argsName = methodPath.reduce((api, key) => api[key], api);
-
         if (req.method === 'POST' || req.method === 'PUT') {
             return new Promise<Boolean>(resolve => {
                 readBody(req).then(body => {
-                    const args = argsName.map((arg) => body[arg]);
+                    const args = Object.values(body);
                     const apiCall = callAPIMethod(req, res, method, ...args);
                     if(apiCall instanceof Promise)
                         apiCall.then(() => resolve(true));
@@ -225,12 +182,19 @@ export default function createHandler(apiRaw) {
             })
         }
 
-        let args = [];
-        if(argsName.length){
-            const queryParams = fastQueryString.parse(urlComponents.join("?"));
-            args = argsName.map((arg) => queryParams[arg] ?? undefined);
+        const queryParams = fastQueryString.parse(urlComponents.join("?"));
+        let args = Object.values(queryParams);
+
+        if(req.headers['content-type'] === "application/json"){
+            args = args.map(param => {
+                try {
+                    return JSON.parse(param)
+                }catch (e){
+                    return decodeURIComponent(param);
+                }
+            })
         }
 
-        return callAPIMethod(req, res, method, ...args);;
+        return callAPIMethod(req, res, method, ...args);
     };
 }

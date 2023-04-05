@@ -1,4 +1,4 @@
-import client from "./client";
+import {client} from "./client";
 
 const root = document.querySelector("#root");
 
@@ -45,7 +45,7 @@ function renderLogin(){
 
 
 async function renderUser(){
-    const user = await client.users.get();
+    const user = await client.get().users.get();
 
     const form = document.createElement("form");
     form.innerHTML = `

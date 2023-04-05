@@ -6,13 +6,13 @@ export default function ({
   id,
   didDelete,
 }: {
-  id: number;
+  id: string;
   didDelete: () => void;
 }) {
   const [todo, setTodo] = React.useState<Todo>(null);
 
   const reloadTodo = () => {
-    client.todos.Read(id).then(setTodo);
+    client.get().todos.Read(id).then(setTodo);
   };
 
   React.useEffect(reloadTodo, []);

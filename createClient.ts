@@ -1,75 +1,44 @@
 class Client<ApiDefinition> {
-    private api;
     private origin;
-    private initialized: boolean = false;
-    private readyCallbacks: (() => void)[] = [];
+    private recurseInProxy(method: "GET" | "POST" | "PUT" | "DELETE", pathComponents: string[] = []){
+        return new Proxy(fetchCall.bind(this), {
+            apply: (target, _, argArray) => {
+                return target(method, pathComponents, ...argArray);
+            },
+            get: (_, p) =>  {
+                pathComponents.push(p as string);
+                return this.recurseInProxy(method, pathComponents);
+            }
+        })
+    }
     headers: {[key: string]: string} = {};
 
     constructor(origin) {
         this.origin = origin;
-        fetch(`${origin}/api`)
-            .then(response => response.json())
-            .then(api => {
-                buildClientRecursive(this, api, []);
-                this.api = api;
-                this.initialized = true;
-                this.readyCallbacks.forEach(cb => cb());
-            });
     }
 
-    ready(): Promise<void>{
-        return new Promise(resolve => {
-            if(this.initialized) resolve();
-            this.readyCallbacks.push(resolve);
-        })
-    }
-
-    private clone() {
-        return Object.assign(Object.create(Object.getPrototypeOf(this)), this);
-    }
-
-    get(): ApiDefinition {
-        return this as any as ApiDefinition;
-    }
-
-    post(): ApiDefinition {
-        const clone = this.clone();
-        clone.method = 'POST';
-        buildClientRecursive(clone, this.api, []);
-        return clone;
-    }
-
-    put(): ApiDefinition {
-        const clone = this.clone();
-        clone.method = 'PUT';
-        buildClientRecursive(clone, this.api, []);
-        return clone;
-    }
-
-    delete(): ApiDefinition {
-        const clone = this.clone();
-        clone.method = 'DELETE';
-        buildClientRecursive(clone, this.api, []);
-        return clone;
-    }
+    get(){ return this.recurseInProxy("GET") as any as ApiDefinition }
+    post(){ return this.recurseInProxy("POST") as any as ApiDefinition }
+    put(){ return this.recurseInProxy("PUT") as any as ApiDefinition }
+    delete(){ return this.recurseInProxy("DELETE") as any as ApiDefinition }
 }
 
-async function fetchCall(pathComponents, ...args) {
+async function fetchCall(method, pathComponents, ...args) {
     const url = new URL(this.origin || window.location.origin);
 
     url.pathname += (url.pathname.endsWith("/") ? "" : "/") + pathComponents.join('/');
 
     const requestInit: RequestInit = {
-        method: this.method ?? 'GET',
+        method
     };
 
-    const argsName = pathComponents.reduce((api, key) => api[key], this.api);
+    const headers = new Headers();
 
     switch (requestInit.method) {
         case 'POST':
         case 'PUT': {
             const body = {};
-            args.forEach((value, index) => body[argsName[index]] = value);
+            args.forEach((value, index) => body[index] = value);
             requestInit.body = JSON.stringify(body);
             break;
         }
@@ -77,21 +46,20 @@ async function fetchCall(pathComponents, ...args) {
             args.forEach((value, index) => {
                 const isObject = typeof value === "object";
 
-                if(!isObject) {
-                    url.searchParams.append(argsName[index], value);
+                if (!isObject) {
+                    url.searchParams.append(index.toString(), value);
                     return;
                 }
 
-                if(Array.isArray(value)){
-                    value.forEach(item => url.searchParams.append(argsName[index], item));
-                    return;
-                }
-
-                url.searchParams.append(argsName[index], JSON.stringify(value));
+                headers.append('Content-Type', "application/json");
+                url.searchParams.append(index.toString(), JSON.stringify(value));
             });
     }
 
-    requestInit.headers = this.headers;
+    Object.keys(this.headers).forEach(headerName => {
+        headers.append(headerName, this.headers[headerName]);
+    });
+    requestInit.headers = headers;
 
     const response = await fetch(url.toString(), requestInit);
 
@@ -103,19 +71,6 @@ async function fetchCall(pathComponents, ...args) {
         throw new Error(data);
 
     return data;
-}
-
-function buildClientRecursive(instance, api, pathComponents, member?) {
-    if (!member) member = instance;
-
-    for (const key of Object.keys(api)) {
-        if (Array.isArray(api[key])) {
-            member[key] = fetchCall.bind(instance, [...pathComponents, key]);
-        } else {
-            member[key] = {};
-            buildClientRecursive(instance, api[key], [...pathComponents, key], member[key]);
-        }
-    }
 }
 
 type OnlyOnePromise<T> = T extends PromiseLike<any>
@@ -130,9 +85,8 @@ type AwaitAll<T> = {
 }
 
 export default function createClient<ApiDefinition>(origin = "") {
-    return new Client<ApiDefinition>(origin) as any as AwaitAll<ApiDefinition> & {
+    return new Client<ApiDefinition>(origin) as {
         headers: Client<ApiDefinition>['headers'],
-        ready(): ReturnType<Client<ApiDefinition>['ready']>,
         get(): AwaitAll<ApiDefinition>,
         post(): AwaitAll<ApiDefinition>,
         put(): AwaitAll<ApiDefinition>,

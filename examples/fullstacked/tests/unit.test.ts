@@ -4,6 +4,6 @@ import {equal} from "assert";
 
 describe("typescript-rpc unit tests", function(){
     it("Should return Hello World", async function (){
-        equal(await api.hello("Hello"), "Hello World");
+        equal(api.hello("Hello"), "Hello World");
     });
 });

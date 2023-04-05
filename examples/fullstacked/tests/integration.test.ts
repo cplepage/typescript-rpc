@@ -12,11 +12,10 @@ testIntegration(describe("typescript-rpc integration tests", function() {
     before(async function (){
         Server.start();
         client = createClient<typeof api>("http://localhost");
-        await client.ready();
     });
 
     it("Should get Hello World", async () => {
-        equal(await client.hello("Hello"), "Hello World");
+        equal(await client.get().hello("Hello"), "Hello World");
     });
 
     after(async function(){

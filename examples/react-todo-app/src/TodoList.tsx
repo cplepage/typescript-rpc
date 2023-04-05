@@ -8,7 +8,7 @@ export default function () {
   const inputRef = React.useRef<HTMLInputElement>();
 
   const reloadTodos = () => {
-    client.todos.List().then(setTodos);
+    client.get().todos.List().then(setTodos);
   };
 
   React.useEffect(reloadTodos, []);
