@@ -1,13 +1,33 @@
 class Client<ApiDefinition> {
     private origin;
-    private recurseInProxy(method: "GET" | "POST" | "PUT" | "DELETE", pathComponents: string[] = []){
+    private cache: {[key: string]: any};
+    private recurseInProxy(method: "GET" | "POST" | "PUT" | "DELETE", useCache = false, pathComponents: string[] = []){
         return new Proxy(fetchCall.bind(this), {
             apply: (target, _, argArray) => {
+                // activate cache
+                if(useCache && !this.cache)
+                    this.cache = {};
+
+                // check if response is already in cache
+                if(method === "GET" && this.cache) {
+                    const pathComponentsAsStr = pathComponents.toString();
+                    const argAsStr = argArray.map(arg => JSON.stringify(arg)).toString();
+
+                    if(!this.cache[pathComponentsAsStr])
+                        this.cache[pathComponentsAsStr] = {};
+
+                    // update cache
+                    if(!this.cache[pathComponentsAsStr][argAsStr] || !useCache)
+                        this.cache[pathComponentsAsStr][argAsStr] = target(method, pathComponents, ...argArray);
+
+                    return this.cache[pathComponentsAsStr][argAsStr];
+                }
+
                 return target(method, pathComponents, ...argArray);
             },
             get: (_, p) =>  {
                 pathComponents.push(p as string);
-                return this.recurseInProxy(method, pathComponents);
+                return this.recurseInProxy(method, useCache, pathComponents);
             }
         })
     }
@@ -17,10 +37,10 @@ class Client<ApiDefinition> {
         this.origin = origin;
     }
 
-    get(){ return this.recurseInProxy("GET") as any as ApiDefinition }
-    post(){ return this.recurseInProxy("POST") as any as ApiDefinition }
-    put(){ return this.recurseInProxy("PUT") as any as ApiDefinition }
-    delete(){ return this.recurseInProxy("DELETE") as any as ApiDefinition }
+    get(useCache = false){ return this.recurseInProxy("GET", useCache) as any as ApiDefinition }
+    post(){ return this.recurseInProxy("POST", false) as any as ApiDefinition }
+    put(){ return this.recurseInProxy("PUT", false) as any as ApiDefinition }
+    delete(){ return this.recurseInProxy("DELETE", false) as any as ApiDefinition }
 }
 
 async function fetchCall(method, pathComponents, ...args) {
@@ -87,7 +107,7 @@ type AwaitAll<T> = {
 export default function createClient<ApiDefinition>(origin = "") {
     return new Client<ApiDefinition>(origin) as {
         headers: Client<ApiDefinition>['headers'],
-        get(): AwaitAll<ApiDefinition>,
+        get(useCache?: boolean): AwaitAll<ApiDefinition>,
         post(): AwaitAll<ApiDefinition>,
         put(): AwaitAll<ApiDefinition>,
         delete(): AwaitAll<ApiDefinition>,
