@@ -1,3 +1,6 @@
+> **Warning** <br />
+> Now part of [FullStacked](https://github.com/cplepage/fullstacked/packages/webapp/rpc) Webapp RPC module
+
 # TypeScript RPC
 
 Another attempt to a TypeScript end-to-end type safe framework.
