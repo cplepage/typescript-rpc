@@ -1,5 +1,5 @@
 > **Warning** <br />
-> Now part of [FullStacked webapp RPC module](https://github.com/cplepage/fullstacked/tree/main/packages/webapp/rpc)
+> Now part of [FullStacked webapp RPC module](https://github.com/fullstackedorg/cli/tree/main/packages/webapp/rpc)
 
 # TypeScript RPC
 
